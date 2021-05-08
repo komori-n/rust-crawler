@@ -8,6 +8,8 @@ use rust_crawler::LinkExtractor;
 use url::Url;
 
 fn main() -> Result<()> {
+    env_logger::init();
+
     let matches = app_from_crate!()
         .arg(
             Arg::with_name("URL")
