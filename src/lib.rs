@@ -1,3 +1,5 @@
+pub mod crawler;
+
 use reqwest::blocking::Client;
 
 use anyhow::Result;
