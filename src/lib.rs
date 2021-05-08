@@ -47,9 +47,18 @@ impl LinkExtractor {
 
         for href in doc.find(Name("a")).filter_map(|a| a.attr("href")) {
             match Url::parse(href) {
-                Ok(url) => links.push(url),
+                Ok(mut url) => {
+                    url.set_fragment(None);
+                    links.push(url);
+                }
                 Err(UrlParseError::RelativeUrlWithoutBase) => {
-                    let url = base_url.join(href).map_err(GetLinksError::AbsolutizeUrl)?;
+                    let url = base_url
+                        .join(href)
+                        .map(|mut x| {
+                            x.set_fragment(None);
+                            x
+                        })
+                        .map_err(GetLinksError::AbsolutizeUrl)?;
                     links.push(url);
                 }
                 Err(e) => println!("Error: {}", e),
