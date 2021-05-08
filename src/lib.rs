@@ -40,10 +40,12 @@ impl LinkExtractor {
             .map_err(GetLinksError::ServerError)?;
         let base_url = response.url().clone();
         let status = response.status();
+        let header = response.headers().clone();
         let body = response.text().map_err(GetLinksError::ResponseBody)?;
         let doc = Document::from(body.as_str());
         let mut links = Vec::new();
         log::info!(r#"Retrieved {} "{}""#, status, base_url);
+        log::debug!(r#"headers {:?}"#, header);
 
         for href in doc.find(Name("a")).filter_map(|a| a.attr("href")) {
             match Url::parse(href) {
