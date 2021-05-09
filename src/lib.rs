@@ -5,6 +5,7 @@ use reqwest::blocking::Client;
 use anyhow::Result;
 use select::document::Document;
 use select::predicate::Name;
+use std::error::Error;
 use thiserror::Error;
 use url::ParseError as UrlParseError;
 use url::Url;
@@ -70,5 +71,23 @@ impl LinkExtractor {
         }
 
         Ok(links)
+    }
+}
+
+impl crawler::AdjacentNodes for LinkExtractor {
+    type Node = Url;
+
+    fn adjacent_nodes(&self, v: &Self::Node) -> Vec<Self::Node> {
+        self.get_links(v.clone()).unwrap_or_else(|e| {
+            log::warn!("Error occurred: {}", e);
+
+            let mut err_source = e.source();
+            if let Some(err) = err_source {
+                log::warn!("Error source: {}", err);
+                err_source = err.source();
+            }
+
+            vec![]
+        })
     }
 }
